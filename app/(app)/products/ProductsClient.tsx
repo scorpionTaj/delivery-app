@@ -4,7 +4,9 @@ import { Pencil, Plus, TrashBin } from "@gravity-ui/icons";
 import { Button, Card, Chip, toast } from "@heroui/react";
 import Link from "next/link";
 import { useState, useTransition } from "react";
+import SortSelect from "@/components/SortSelect";
 import { formatMoney } from "@/lib/settings";
+import { PRODUCT_SORTS, type ProductSort, sortProducts } from "@/lib/sort";
 import { useFormAction } from "@/lib/useFormAction";
 import { createProduct, deleteProduct, updateProduct } from "./actions";
 
@@ -160,8 +162,13 @@ export default function ProductsClient({
   lowStock: number;
 }) {
   const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<ProductSort>("stock-desc");
   const { state, onSubmit, pending } = useFormAction(createProduct, (r) => toast.success(r.message ?? "Added"));
-  const visible = products.filter((p) => p.name.toLowerCase().includes(query.trim().toLowerCase()));
+  const q = query.trim().toLowerCase();
+  const visible = sortProducts(
+    products.filter((p) => p.name.toLowerCase().includes(q)),
+    sort,
+  );
 
   return (
     <div className="space-y-6">
@@ -202,8 +209,9 @@ export default function ProductsClient({
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search products…"
             aria-label="Search products"
-            className="input max-w-xs py-1.5 text-sm"
+            className="input w-auto min-w-0 flex-1 py-1.5 text-sm sm:max-w-xs"
           />
+          <SortSelect value={sort} onChange={setSort} options={PRODUCT_SORTS} />
         </div>
         {visible.length === 0 && <p className="text-sm text-muted">No products found.</p>}
         <div className="grid gap-3 sm:grid-cols-2">

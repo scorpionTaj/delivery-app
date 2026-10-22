@@ -42,6 +42,7 @@ export default async function OrdersPage() {
     lng: o.lng as number,
     zoneId: o.zone_id as string,
     createdAt: dateFormat.format(new Date(o.created_at as string)),
+    createdAtMs: Date.parse(o.created_at as string),
     productName: (o.products as unknown as { name: string } | null)?.name ?? "—",
   }));
 

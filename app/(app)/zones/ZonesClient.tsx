@@ -4,7 +4,9 @@ import { Plus, TrashBin } from "@gravity-ui/icons";
 import { Button, Card, toast } from "@heroui/react";
 import { useState, useTransition } from "react";
 import MapView from "@/components/MapView";
+import SortSelect from "@/components/SortSelect";
 import { type Zone, formatDistance } from "@/lib/geo";
+import { ZONE_SORTS, type ZoneSort, sortZones } from "@/lib/sort";
 import { useFormAction } from "@/lib/useFormAction";
 import { createZone, deleteZone } from "./actions";
 
@@ -15,6 +17,8 @@ export default function ZonesClient({ zones }: { zones: Zone[] }) {
     setPicked(null);
   });
   const [deleting, startDelete] = useTransition();
+  const [sort, setSort] = useState<ZoneSort>("radius-desc");
+  const sorted = sortZones(zones, sort);
 
   return (
     <div className="space-y-6">
@@ -51,10 +55,13 @@ export default function ZonesClient({ zones }: { zones: Zone[] }) {
       </Card>
 
       <section className="space-y-3">
-        <h2 className="font-semibold">All zones ({zones.length})</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-semibold">All zones ({zones.length})</h2>
+          <SortSelect value={sort} onChange={setSort} options={ZONE_SORTS} />
+        </div>
         {zones.length === 0 && <p className="text-sm text-muted">No zones yet.</p>}
         <ul className="grid gap-2 sm:grid-cols-2">
-          {zones.map((z) => (
+          {sorted.map((z) => (
             <li key={z.id} className="card flex items-center gap-3">
               <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: z.color }} />
               <div className="min-w-0 flex-1">

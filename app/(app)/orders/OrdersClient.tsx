@@ -5,8 +5,10 @@ import { Button, Card, toast } from "@heroui/react";
 import Link from "next/link";
 import { useState } from "react";
 import MapView from "@/components/MapView";
+import SortSelect from "@/components/SortSelect";
 import type { Zone } from "@/lib/geo";
 import { formatMoney } from "@/lib/settings";
+import { ORDER_SORTS, type OrderSort, sortOrders } from "@/lib/sort";
 import { useFormAction } from "@/lib/useFormAction";
 import { placeOrder } from "./actions";
 
@@ -19,6 +21,7 @@ type Order = {
   lng: number;
   zoneId: string;
   createdAt: string;
+  createdAtMs: number;
   productName: string;
 };
 
@@ -39,6 +42,7 @@ export default function OrdersClient({
   const [quantity, setQuantity] = useState(1);
   const [picked, setPicked] = useState<[number, number] | null>(null);
   const [zoneFilter, setZoneFilter] = useState("");
+  const [sort, setSort] = useState<OrderSort>("newest");
   const { state, onSubmit, pending } = useFormAction(placeOrder, (r) => {
     toast.success(r.message ?? "Order accepted");
     setPicked(null);
@@ -50,7 +54,7 @@ export default function OrdersClient({
   // Show only the zones that deliver the selected product.
   const visibleZones = product ? zones.filter((z) => product.zoneIds.includes(z.id)) : zones;
   const zoneById = Object.fromEntries(zones.map((z) => [z.id, z]));
-  const listed = zoneFilter ? orders.filter((o) => o.zoneId === zoneFilter) : orders;
+  const listed = sortOrders(zoneFilter ? orders.filter((o) => o.zoneId === zoneFilter) : orders, sort);
   const points = listed.map((o) => ({ lat: o.lat, lng: o.lng, color: zoneById[o.zoneId]?.color ?? "#94a3b8" }));
 
   if (products.length === 0) {
@@ -136,7 +140,7 @@ export default function OrdersClient({
 
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-semibold">Latest orders ({listed.length})</h2>
+          <h2 className="mr-auto font-semibold">Latest orders ({listed.length})</h2>
           <select
             value={zoneFilter}
             onChange={(e) => setZoneFilter(e.target.value)}
@@ -150,6 +154,7 @@ export default function OrdersClient({
               </option>
             ))}
           </select>
+          <SortSelect value={sort} onChange={setSort} options={ORDER_SORTS} />
         </div>
         {listed.length > 0 && (
           <div className="card p-2">
