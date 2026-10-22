@@ -2,7 +2,7 @@
 
 import { type FormEvent, startTransition, useActionState } from "react";
 
-type Result = { ok?: boolean; error?: string };
+type Result = { ok?: boolean; error?: string; message?: string };
 
 /**
  * Like useActionState for a <form>, but the form is only reset on success.
