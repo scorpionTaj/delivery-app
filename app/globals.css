@@ -1,0 +1,25 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+}
+
+body {
+  @apply bg-slate-50 text-slate-900;
+}
+
+@layer components {
+  .input {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200;
+  }
+  .btn-primary {
+    @apply rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply rounded-lg bg-white px-4 py-2 font-medium text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50 disabled:opacity-50;
+  }
+  .card {
+    @apply rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200;
+  }
+}
