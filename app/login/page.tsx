@@ -1,8 +1,8 @@
 "use client";
 
-import { ShoppingCart } from "@gravity-ui/icons";
 import { Button, Card } from "@heroui/react";
 import { useActionState } from "react";
+import Logo from "@/components/Logo";
 import ThemeSwitch from "@/components/ThemeSwitch";
 import { authenticate } from "./actions";
 
@@ -12,12 +12,12 @@ export default function LoginPage() {
   return (
     <main className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-accent-soft via-background to-background p-4">
       <div className="absolute top-4 right-4">
-        <ThemeSwitch compact />
+        <ThemeSwitch />
       </div>
       <Card className="w-full max-w-sm">
         <Card.Header className="items-center text-center">
-          <span className="mb-2 grid h-12 w-12 place-items-center rounded-2xl bg-accent text-accent-foreground">
-            <ShoppingCart width={24} height={24} />
+          <span className="mb-2">
+            <Logo size={48} />
           </span>
           <Card.Title className="text-xl">Delivery Manager</Card.Title>
           <Card.Description>Sign in or create an account</Card.Description>

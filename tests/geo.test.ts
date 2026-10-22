@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { findZone, haversine, type Zone } from "./geo.ts";
+import { findZone, haversine, type Zone } from "../lib/geo.ts";
 
 const maarif: Zone = { id: "a", name: "Maarif", lat: 33.5731, lng: -7.6298, radius_m: 2000 };
 const center: Zone = { id: "b", name: "Center", lat: 33.5731, lng: -7.6098, radius_m: 3000 };

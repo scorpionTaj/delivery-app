@@ -1,46 +1,54 @@
 import { TriangleExclamation } from "@gravity-ui/icons";
 import Link from "next/link";
-import Map from "@/components/Map";
+import MapView from "@/components/MapView";
 import { formatDistance, withColors } from "@/lib/geo";
 import { formatMoney, getSettings } from "@/lib/settings";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const [zonesRes, linksRes, ordersRes, productsRes, settings] = await Promise.all([
+  const [zonesRes, linksRes, statsRes, recentRes, productsRes, settings] = await Promise.all([
     supabase.from("zones").select("id, name, lat, lng, radius_m").order("created_at"),
     supabase.from("product_zones").select("zone_id, products(name)"),
-    supabase.from("orders").select("zone_id, quantity, unit_price, lat, lng"),
+    supabase.rpc("zone_order_stats"),
+    // Map shows the latest orders only; totals come from zone_order_stats.
+    supabase.from("orders").select("zone_id, lat, lng").order("created_at", { ascending: false }).limit(500),
     supabase.from("products").select("id, name, quantity").order("quantity"),
     getSettings(supabase),
   ]);
-  for (const res of [zonesRes, linksRes, ordersRes, productsRes]) if (res.error) throw res.error;
+  for (const res of [zonesRes, linksRes, statsRes, recentRes, productsRes]) if (res.error) throw res.error;
 
   const zones = withColors(zonesRes.data!);
   const links = linksRes.data! as unknown as { zone_id: string; products: { name: string } | null }[];
-  const orders = ordersRes.data!;
   const products = productsRes.data!;
-  const orderTotal = (o: { quantity: number; unit_price: number | null }) => o.quantity * Number(o.unit_price ?? 0);
+  const totalsByZone = new Map(
+    (statsRes.data as { zone_id: string; order_count: number; units: number; revenue: number }[]).map((s) => [s.zone_id, s]),
+  );
+  const productsByZone = new Map<string, string[]>();
+  for (const l of links) {
+    if (l.products) productsByZone.set(l.zone_id, [...(productsByZone.get(l.zone_id) ?? []), l.products.name]);
+  }
 
   const stats = zones.map((z) => {
-    const zoneOrders = orders.filter((o) => o.zone_id === z.id);
+    const t = totalsByZone.get(z.id);
     return {
       ...z,
-      products: links.filter((l) => l.zone_id === z.id && l.products).map((l) => l.products!.name),
-      orderCount: zoneOrders.length,
-      units: zoneOrders.reduce((sum, o) => sum + o.quantity, 0),
-      revenue: zoneOrders.reduce((sum, o) => sum + orderTotal(o), 0),
+      products: productsByZone.get(z.id) ?? [],
+      orderCount: Number(t?.order_count ?? 0),
+      units: Number(t?.units ?? 0),
+      revenue: Number(t?.revenue ?? 0),
     };
   });
   const colorByZone = Object.fromEntries(zones.map((z) => [z.id, z.color]));
-  const points = orders.map((o) => ({ lat: o.lat, lng: o.lng, color: colorByZone[o.zone_id] ?? "#94a3b8" }));
+  const points = recentRes.data!.map((o) => ({ lat: o.lat, lng: o.lng, color: colorByZone[o.zone_id] ?? "#94a3b8" }));
   const lowStock = products.filter((p) => p.quantity <= settings.low_stock_threshold);
-  const revenue = orders.reduce((sum, o) => sum + orderTotal(o), 0);
+  const revenue = stats.reduce((sum, z) => sum + z.revenue, 0);
+  const orderCount = stats.reduce((sum, z) => sum + z.orderCount, 0);
 
   const totals = [
     { label: "Zones", value: zones.length, href: "/zones" },
     { label: "Products", value: products.length, href: "/products" },
-    { label: "Orders", value: orders.length, href: "/orders" },
+    { label: "Orders", value: orderCount, href: "/orders" },
     { label: "Revenue", value: formatMoney(revenue, settings.currency), href: "/orders" },
   ];
 
@@ -69,7 +77,7 @@ export default async function DashboardPage() {
 
       <section className="card space-y-3">
         <h2 className="font-semibold">Zones and orders</h2>
-        <Map zones={zones} points={points} />
+        <MapView zones={zones} points={points} />
       </section>
 
       <section className="space-y-3">

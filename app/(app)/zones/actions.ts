@@ -2,30 +2,24 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { isUuid, parseZone } from "@/lib/validation";
 
-export type FormState = { error?: string; ok?: boolean };
+export type FormState = { error?: string; ok?: boolean; message?: string };
 
 export async function createZone(_prev: FormState, formData: FormData): Promise<FormState> {
-  const name = String(formData.get("name") ?? "").trim();
-  const radius = Number(formData.get("radius_m"));
-  const lat = Number(formData.get("lat"));
-  const lng = Number(formData.get("lng"));
-
-  if (!name) return { error: "Zone name is required." };
-  if (!Number.isFinite(radius) || radius <= 0) return { error: "Radius must be a positive number of meters." };
-  if (!formData.get("lat") || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
-    return { error: "Click the map to set the zone center." };
-  }
+  const parsed = parseZone(formData);
+  if (!parsed.data) return { error: parsed.error };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("zones").insert({ name, radius_m: radius, lat, lng });
+  const { error } = await supabase.from("zones").insert(parsed.data);
   if (error) return { error: error.message };
 
   revalidatePath("/", "layout");
-  return { ok: true };
+  return { ok: true, message: `${parsed.data.name} added.` };
 }
 
 export async function deleteZone(id: string): Promise<FormState> {
+  if (!isUuid(id)) return { error: "Unknown zone." };
   const supabase = await createClient();
   const { error } = await supabase.from("zones").delete().eq("id", id);
   if (error) {
@@ -34,5 +28,5 @@ export async function deleteZone(id: string): Promise<FormState> {
     };
   }
   revalidatePath("/", "layout");
-  return { ok: true };
+  return { ok: true, message: "Zone deleted." };
 }

@@ -26,8 +26,9 @@ A mobile-first app to define delivery zones on a map, assign products to zones, 
 - **Products** can be edited, restocked, deleted (blocked if they have orders) and searched; stock chips turn amber/red at the low-stock threshold.
 - **Orders** store the unit price at order time, show totals, and can be filtered by zone on a map.
 - **Dashboard** – totals and revenue, low-stock alert, a map of zones and order locations, and per-zone counts of orders, units and assigned products. Zone colors match on every page.
-- **Settings** – theme (per device) plus workspace rules enforced on the server: currency, low-stock threshold, max quantity per order, zone selection rule (nearest center or smallest zone) and edge tolerance in meters.
-- **Dark mode** – HeroUI theme tokens everywhere, inverted map tiles, no flash on load.
+- **Settings** – workspace rules enforced on the server: currency (MAD / USD / EUR), low-stock threshold, max quantity per order, zone selection rule (nearest center or smallest zone) and edge tolerance in meters.
+- **Dark mode** – light / dark / system switch in the sidebar; HeroUI theme tokens everywhere, inverted map tiles, no flash on load.
+- **Collapsible sidebar** – icons-only mode, remembered per device.
 
 ## Architecture
 
@@ -37,10 +38,13 @@ app/login/                     login/sign-up form + server actions
 app/(app)/layout.tsx           sidebar (desktop) / bottom nav (mobile)
 app/(app)/zones|products|orders|dashboard
 lib/geo.ts                     haversine, findZone, zone colors
-lib/geo.test.ts                unit tests (node --test)
+lib/validation.ts              pure input parsing for every server action
+tests/                         unit tests (node --test): geo, validation, formatting
+.github/workflows/ci.yml       lint → typecheck → tests → build on every push/PR
 lib/useFormAction.ts           form hook that keeps input on validation errors
 components/ZoneMap.tsx         Leaflet map (loaded with next/dynamic, ssr: false)
-supabase/schema.sql            tables, RLS policies, place_order() function
+supabase/schema.sql            tables, RLS, indexes, place_order() + zone_order_stats()
+supabase/seed.sql              example zones, products and ~150 orders (re-runnable)
 ```
 
 - **The zone check is server-side** (`app/(app)/orders/actions.ts`); the browser only sends the clicked point.
@@ -53,10 +57,11 @@ supabase/schema.sql            tables, RLS policies, place_order() function
 npm install
 cp .env.example .env.local   # fill in your Supabase URL + anon/publishable key
 npm run dev
-npm test                     # haversine / zone-matching tests
+npm test                     # unit tests in tests/
+npm run check                # lint + typecheck + tests (same as CI)
 ```
 
-Database: run `supabase/schema.sql` in the Supabase SQL editor. In **Authentication → Sign In / Providers → Email**, turn off "Confirm email" so sign-up logs straight in.
+Database: run `supabase/schema.sql`, then optionally `supabase/seed.sql` for example data, in the Supabase SQL editor. In **Authentication → Sign In / Providers → Email**, turn off "Confirm email" so sign-up logs straight in.
 
 ## Deploy
 

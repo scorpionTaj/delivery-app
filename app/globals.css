@@ -5,6 +5,15 @@
 /* Dark mode follows the `.dark` class HeroUI uses, not only the OS setting. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Icon-only sidebar, toggled via <html data-nav="collapsed">. */
+@custom-variant nav-collapsed {
+  @media (width >= 48rem) {
+    &:where([data-nav="collapsed"], [data-nav="collapsed"] *) {
+      @slot;
+    }
+  }
+}
+
 @theme inline {
   --font-sans: var(--font-geist-sans);
 }

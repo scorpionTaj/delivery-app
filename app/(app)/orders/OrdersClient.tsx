@@ -4,7 +4,7 @@ import { ShoppingCart } from "@gravity-ui/icons";
 import { Button, Card, toast } from "@heroui/react";
 import Link from "next/link";
 import { useState } from "react";
-import Map from "@/components/Map";
+import MapView from "@/components/MapView";
 import type { Zone } from "@/lib/geo";
 import { formatMoney } from "@/lib/settings";
 import { useFormAction } from "@/lib/useFormAction";
@@ -112,7 +112,7 @@ export default function OrdersClient({
               </label>
             </div>
 
-            <Map zones={visibleZones} picked={picked} onPick={(lat, lng) => setPicked([lat, lng])} />
+            <MapView zones={visibleZones} picked={picked} onPick={(lat, lng) => setPicked([lat, lng])} />
             <input type="hidden" name="lat" value={picked?.[0] ?? ""} />
             <input type="hidden" name="lng" value={picked?.[1] ?? ""} />
 
@@ -136,7 +136,7 @@ export default function OrdersClient({
 
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-semibold">Accepted orders ({listed.length})</h2>
+          <h2 className="font-semibold">Latest orders ({listed.length})</h2>
           <select
             value={zoneFilter}
             onChange={(e) => setZoneFilter(e.target.value)}
@@ -153,7 +153,7 @@ export default function OrdersClient({
         </div>
         {listed.length > 0 && (
           <div className="card p-2">
-            <Map zones={zoneFilter ? zones.filter((z) => z.id === zoneFilter) : zones} points={points} />
+            <MapView zones={zoneFilter ? zones.filter((z) => z.id === zoneFilter) : zones} points={points} />
           </div>
         )}
         {listed.length === 0 && <p className="text-sm text-muted">No orders yet.</p>}

@@ -1,8 +1,7 @@
 "use client";
 
 import { Button, Card, toast } from "@heroui/react";
-import ThemeSwitch from "@/components/ThemeSwitch";
-import type { Settings } from "@/lib/settings";
+import { CURRENCIES, type Settings } from "@/lib/settings";
 import { useFormAction } from "@/lib/useFormAction";
 import { updateSettings } from "./actions";
 
@@ -25,16 +24,6 @@ export default function SettingsClient({ settings }: { settings: Settings }) {
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Settings</h1>
 
-      <Card>
-        <Card.Header>
-          <Card.Title>Appearance</Card.Title>
-          <Card.Description>Saved on this device.</Card.Description>
-        </Card.Header>
-        <Card.Content>
-          <ThemeSwitch />
-        </Card.Content>
-      </Card>
-
       <form onSubmit={onSubmit} className="space-y-6">
         <Card>
           <Card.Header>
@@ -42,8 +31,14 @@ export default function SettingsClient({ settings }: { settings: Settings }) {
             <Card.Description>Shared by everyone in the workspace.</Card.Description>
           </Card.Header>
           <Card.Content className="grid gap-4 sm:grid-cols-2">
-            <Field label="Currency" hint="Shown next to prices, e.g. MAD, EUR.">
-              <input name="currency" required maxLength={5} defaultValue={settings.currency} className="input uppercase" />
+            <Field label="Currency" hint="Used for every price and total in the app.">
+              <select name="currency" defaultValue={settings.currency} className="input">
+                {CURRENCIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
             </Field>
             <Field label="Low-stock threshold" hint="Products at or below this quantity are flagged.">
               <input

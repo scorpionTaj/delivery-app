@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import Script from "next/script";
 import Toasts from "@/components/Toasts";
-import { themeInitScript } from "@/lib/theme";
+import { uiInitScript } from "@/lib/theme";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -26,11 +26,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // The theme script sets class/data-theme before hydration, hence suppressHydrationWarning.
+    // The init script sets class/data-* before hydration, hence suppressHydrationWarning.
     <html lang="en" className={`${geistSans.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
-        <Script id="theme-init" strategy="beforeInteractive">
-          {themeInitScript}
+        <Script id="ui-init" strategy="beforeInteractive">
+          {uiInitScript}
         </Script>
       </head>
       <body className="min-h-full">

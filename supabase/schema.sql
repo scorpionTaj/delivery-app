@@ -127,3 +127,28 @@ begin
   return new_id;
 end;
 $$;
+
+-- ── Migration 3: currency whitelist ─────────────────────────────────────────
+alter table app_settings add constraint app_settings_currency_check check (currency in ('MAD', 'USD', 'EUR'));
+
+-- ── Migration 4: indexes for foreign keys and the newest-first order list ────
+create index if not exists orders_product_id_idx on orders (product_id);
+create index if not exists orders_zone_id_idx on orders (zone_id);
+create index if not exists orders_created_at_idx on orders (created_at desc);
+create index if not exists orders_user_id_idx on orders (user_id);
+create index if not exists product_zones_zone_id_idx on product_zones (zone_id);
+create index if not exists products_user_id_idx on products (user_id);
+create index if not exists zones_user_id_idx on zones (user_id);
+
+-- ── Migration 5: per-zone order totals computed in SQL (no 1000-row API cap) ──
+create or replace function zone_order_stats()
+returns table (zone_id uuid, order_count bigint, units bigint, revenue numeric)
+language sql
+stable
+security invoker
+set search_path = public
+as $$
+  select zone_id, count(*), coalesce(sum(quantity), 0), coalesce(sum(quantity * coalesce(unit_price, 0)), 0)
+  from orders
+  group by zone_id;
+$$;

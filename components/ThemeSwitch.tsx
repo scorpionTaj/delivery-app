@@ -2,7 +2,7 @@
 
 import { Display, Moon, Sun } from "@gravity-ui/icons";
 import { Button } from "@heroui/react";
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { type ThemePref, applyTheme, getThemePref } from "@/lib/theme";
 
 const OPTIONS: { value: ThemePref; label: string; Icon: typeof Sun }[] = [
@@ -21,28 +21,33 @@ function setPref(pref: ThemePref) {
   listeners.forEach((l) => l());
 }
 
-export function useThemePref() {
-  return useSyncExternalStore(subscribe, getThemePref, () => "system" as ThemePref);
-}
+/** Light / dark / system picker (icons only). `vertical` stacks it for the collapsed sidebar. */
+export default function ThemeSwitch({ className = "" }: { className?: string }) {
+  const pref = useSyncExternalStore(subscribe, getThemePref, () => "system" as ThemePref);
 
-/** Segmented light / dark / system picker. `compact` shows icons only. */
-export default function ThemeSwitch({ compact = false }: { compact?: boolean }) {
-  const pref = useThemePref();
+  // In "system" mode, follow the OS when it switches between light and dark.
+  useEffect(() => {
+    if (pref !== "system") return;
+    const mq = matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => applyTheme("system");
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, [pref]);
+
   return (
-    <div role="group" aria-label="Theme" className="inline-flex gap-1 rounded-full bg-default p-1">
+    <div role="group" aria-label="Theme" className={`inline-flex gap-1 rounded-full bg-default p-1 ${className}`}>
       {OPTIONS.map(({ value, label, Icon }) => (
         <Button
           key={value}
           aria-pressed={pref === value}
-          aria-label={label}
+          aria-label={`${label} theme`}
           size="sm"
-          isIconOnly={compact}
+          isIconOnly
           variant={pref === value ? "primary" : "ghost"}
           className="rounded-full"
           onPress={() => setPref(value)}
         >
           <Icon />
-          {!compact && label}
         </Button>
       ))}
     </div>

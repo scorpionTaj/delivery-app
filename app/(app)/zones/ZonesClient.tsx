@@ -3,7 +3,7 @@
 import { Plus, TrashBin } from "@gravity-ui/icons";
 import { Button, Card, toast } from "@heroui/react";
 import { useState, useTransition } from "react";
-import Map from "@/components/Map";
+import MapView from "@/components/MapView";
 import { type Zone, formatDistance } from "@/lib/geo";
 import { useFormAction } from "@/lib/useFormAction";
 import { createZone, deleteZone } from "./actions";
@@ -26,7 +26,7 @@ export default function ZonesClient({ zones }: { zones: Zone[] }) {
           <Card.Description>Tap the map to set the zone center, then name it and set a radius.</Card.Description>
         </Card.Header>
         <Card.Content className="space-y-4">
-          <Map zones={zones} picked={picked} onPick={(lat, lng) => setPicked([lat, lng])} />
+          <MapView zones={zones} picked={picked} onPick={(lat, lng) => setPicked([lat, lng])} />
           <form onSubmit={onSubmit} className="grid gap-3 sm:grid-cols-[1fr_10rem_auto] sm:items-end">
             <input type="hidden" name="lat" value={picked?.[0] ?? ""} />
             <input type="hidden" name="lng" value={picked?.[1] ?? ""} />
