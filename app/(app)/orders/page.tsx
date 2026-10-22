@@ -1,4 +1,5 @@
 import { withColors } from "@/lib/geo";
+import { getSettings } from "@/lib/settings";
 import { createClient } from "@/lib/supabase/server";
 import OrdersClient from "./OrdersClient";
 
@@ -11,14 +12,15 @@ const dateFormat = new Intl.DateTimeFormat("en-GB", {
 
 export default async function OrdersPage() {
   const supabase = await createClient();
-  const [zonesRes, productsRes, ordersRes] = await Promise.all([
+  const [zonesRes, productsRes, ordersRes, settings] = await Promise.all([
     supabase.from("zones").select("id, name, lat, lng, radius_m").order("created_at"),
     supabase.from("products").select("id, name, price, quantity, product_zones(zone_id)").order("name"),
     supabase
       .from("orders")
-      .select("id, quantity, lat, lng, zone_id, created_at, products(name)")
+      .select("id, quantity, unit_price, lat, lng, zone_id, created_at, products(name)")
       .order("created_at", { ascending: false })
-      .limit(50),
+      .limit(100),
+    getSettings(supabase),
   ]);
   if (zonesRes.error) throw zonesRes.error;
   if (productsRes.error) throw productsRes.error;
@@ -35,6 +37,7 @@ export default async function OrdersPage() {
   const orders = ordersRes.data.map((o) => ({
     id: o.id as string,
     quantity: o.quantity as number,
+    total: Number(o.unit_price ?? 0) * (o.quantity as number),
     lat: o.lat as number,
     lng: o.lng as number,
     zoneId: o.zone_id as string,
@@ -42,5 +45,13 @@ export default async function OrdersPage() {
     productName: (o.products as unknown as { name: string } | null)?.name ?? "—",
   }));
 
-  return <OrdersClient zones={withColors(zonesRes.data)} products={products} orders={orders} />;
+  return (
+    <OrdersClient
+      zones={withColors(zonesRes.data)}
+      products={products}
+      orders={orders}
+      currency={settings.currency}
+      maxQuantity={settings.max_order_quantity}
+    />
+  );
 }

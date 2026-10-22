@@ -6,7 +6,8 @@ A mobile-first app to define delivery zones on a map, assign products to zones, 
 
 ## Stack
 
-- **Next.js 16** (App Router, TypeScript, Server Actions) + **Tailwind CSS 4**
+- **Next.js 16** (App Router, TypeScript, Server Actions), **React 19.3**, **Node 24 LTS**
+- **HeroUI v3** components + **Tailwind CSS 4**, light/dark/system theme
 - **Supabase** – Auth (email/password) and Postgres
 - **Leaflet / react-leaflet** + OpenStreetMap tiles (no API key)
 - **Vercel** hosting
@@ -19,10 +20,14 @@ A mobile-first app to define delivery zones on a map, assign products to zones, 
 - **Orders** – pick a product and quantity, tap the customer's location. The server:
   1. loads the zones assigned to that product,
   2. computes the haversine distance to each center and keeps the zones that contain the point,
-  3. picks the **nearest** containing zone,
+  3. picks a containing zone by the configured rule (nearest center by default),
   4. rejects with a clear message otherwise, e.g. *"Location is 2.3 km outside the nearest zone that delivers Water 1.5L"*,
   5. checks and decrements stock.
-- **Dashboard** – totals, a map of zones and order locations, and per-zone counts of orders, units and assigned products. Zone colors match on every page.
+- **Products** can be edited, restocked, deleted (blocked if they have orders) and searched; stock chips turn amber/red at the low-stock threshold.
+- **Orders** store the unit price at order time, show totals, and can be filtered by zone on a map.
+- **Dashboard** – totals and revenue, low-stock alert, a map of zones and order locations, and per-zone counts of orders, units and assigned products. Zone colors match on every page.
+- **Settings** – theme (per device) plus workspace rules enforced on the server: currency, low-stock threshold, max quantity per order, zone selection rule (nearest center or smallest zone) and edge tolerance in meters.
+- **Dark mode** – HeroUI theme tokens everywhere, inverted map tiles, no flash on load.
 
 ## Architecture
 
