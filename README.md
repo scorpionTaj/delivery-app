@@ -1,6 +1,6 @@
 # Delivery Management App
 
-Live: LIVE_URL · Test account: `test@demo.com` / `Test1234!`
+Live: https://delivery-app-three-psi.vercel.app · Repo: https://github.com/scorpionTaj/delivery-app · Test account: `test@demo.com` / `Test1234!`
 
 A mobile-first app to define delivery zones on a map, assign products to zones, and accept orders only when the customer's location is inside a zone that delivers that product.
 
