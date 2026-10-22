@@ -2,6 +2,13 @@ import { withColors } from "@/lib/geo";
 import { createClient } from "@/lib/supabase/server";
 import OrdersClient from "./OrdersClient";
 
+// Formatted on the server only, so the browser hydrates the exact same text.
+const dateFormat = new Intl.DateTimeFormat("en-GB", {
+  dateStyle: "short",
+  timeStyle: "short",
+  timeZone: "Africa/Casablanca",
+});
+
 export default async function OrdersPage() {
   const supabase = await createClient();
   const [zonesRes, productsRes, ordersRes] = await Promise.all([
@@ -31,7 +38,7 @@ export default async function OrdersPage() {
     lat: o.lat as number,
     lng: o.lng as number,
     zoneId: o.zone_id as string,
-    createdAt: o.created_at as string,
+    createdAt: dateFormat.format(new Date(o.created_at as string)),
     productName: (o.products as unknown as { name: string } | null)?.name ?? "—",
   }));
 

@@ -8,6 +8,7 @@ import { useFormAction } from "@/lib/useFormAction";
 import { placeOrder } from "./actions";
 
 type Product = { id: string; name: string; price: number; quantity: number; zoneIds: string[] };
+
 type Order = {
   id: string;
   quantity: number;
@@ -122,7 +123,7 @@ export default function OrdersClient({
                     {o.quantity} × {o.productName}
                   </p>
                   <p className="text-xs text-slate-500">
-                    {zone?.name ?? "Deleted zone"} · {new Date(o.createdAt).toLocaleString()}
+                    {zone?.name ?? "Deleted zone"} · {o.createdAt}
                   </p>
                 </div>
               </li>
