@@ -1,25 +1,45 @@
 @import "tailwindcss";
+@import "@heroui/styles";
 @import "leaflet/dist/leaflet.css";
+
+/* Dark mode follows the `.dark` class HeroUI uses, not only the OS setting. */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
   --font-sans: var(--font-geist-sans);
 }
 
 body {
-  @apply bg-slate-50 text-slate-900;
+  @apply bg-background text-foreground;
 }
 
 @layer components {
   .input {
-    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200;
-  }
-  .btn-primary {
-    @apply rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 disabled:opacity-50;
-  }
-  .btn-secondary {
-    @apply rounded-lg bg-white px-4 py-2 font-medium text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50 disabled:opacity-50;
+    @apply w-full rounded-xl border border-field-border bg-field px-3 py-2 text-base text-field-foreground outline-none transition placeholder:text-field-placeholder hover:border-field-border-hover focus:border-accent focus:ring-2 focus:ring-accent/25;
   }
   .card {
-    @apply rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200;
+    @apply rounded-3xl bg-surface p-4 text-surface-foreground shadow-sm ring-1 ring-border;
   }
+  .label {
+    @apply text-sm font-medium text-foreground;
+  }
+  .alert-error {
+    @apply rounded-xl bg-danger-soft p-2.5 text-sm text-danger-soft-foreground;
+  }
+  .alert-success {
+    @apply rounded-xl bg-success-soft p-2.5 text-sm text-success-soft-foreground;
+  }
+}
+
+/* Dark map tiles: invert OSM tiles, keep zone circles and markers untouched. */
+.dark .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9);
+}
+.dark .leaflet-container {
+  background: #1f2937;
+}
+.dark .leaflet-control-zoom a,
+.dark .leaflet-control-attribution {
+  background: #111827;
+  color: #e5e7eb;
 }

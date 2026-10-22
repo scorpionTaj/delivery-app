@@ -30,6 +30,19 @@ test("point outside every zone is rejected with the gap to the nearest edge", ()
   assert.ok(!r.zone && r.outsideBy !== null && r.outsideBy > 4000 && r.outsideBy < 5000);
 });
 
+test("'smallest' strategy prefers the tighter zone over the nearer center", () => {
+  const big: Zone = { id: "big", name: "Big", lat: 33.5731, lng: -7.627, radius_m: 5000 };
+  const r = findZone(33.5731, -7.627, [big, maarif], { strategy: "smallest" });
+  assert.equal(r.zone?.id, "a");
+});
+
+test("edge tolerance accepts a point just outside the radius", () => {
+  // ~300 m outside Maarif's 2 km edge.
+  const lng = -7.6298 + 2300 / (111_320 * Math.cos((33.5731 * Math.PI) / 180));
+  assert.equal(findZone(33.5731, lng, [maarif]).zone, null);
+  assert.equal(findZone(33.5731, lng, [maarif], { toleranceM: 500 }).zone?.id, "a");
+});
+
 test("no zones means no match", () => {
   const r = findZone(33.5, -7.6, []);
   assert.deepEqual(r, { zone: null, outsideBy: null });

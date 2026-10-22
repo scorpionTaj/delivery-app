@@ -12,22 +12,35 @@ export function haversine(lat1: number, lng1: number, lat2: number, lng2: number
   return 2 * EARTH_RADIUS_M * Math.asin(Math.sqrt(a));
 }
 
+export type FindZoneOptions = {
+  /** "nearest": closest center wins. "smallest": tightest (smallest radius) zone wins. */
+  strategy?: "nearest" | "smallest";
+  /** Accept points up to this many meters outside a zone's edge. */
+  toleranceM?: number;
+};
+
 /**
- * Picks the nearest zone (by distance to its center) that contains the point.
+ * Picks a zone that contains the point (nearest center by default).
  * If none contains it, returns how far the point is outside the closest zone edge.
  */
 export function findZone(
   lat: number,
   lng: number,
   zones: Zone[],
+  { strategy = "nearest", toleranceM = 0 }: FindZoneOptions = {},
 ): { zone: Zone; distance: number } | { zone: null; outsideBy: number | null } {
   let best: { zone: Zone; distance: number } | null = null;
   let outsideBy: number | null = null;
+  const better = (a: { zone: Zone; distance: number }, b: { zone: Zone; distance: number }) =>
+    strategy === "smallest"
+      ? a.zone.radius_m < b.zone.radius_m || (a.zone.radius_m === b.zone.radius_m && a.distance < b.distance)
+      : a.distance < b.distance;
 
   for (const zone of zones) {
     const distance = haversine(lat, lng, zone.lat, zone.lng);
-    if (distance <= zone.radius_m) {
-      if (!best || distance < best.distance) best = { zone, distance };
+    if (distance <= zone.radius_m + toleranceM) {
+      const candidate = { zone, distance };
+      if (!best || better(candidate, best)) best = candidate;
     } else {
       const gap = distance - zone.radius_m;
       if (outsideBy === null || gap < outsideBy) outsideBy = gap;
