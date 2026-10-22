@@ -18,7 +18,15 @@ export default function LoginPage() {
         </div>
         <label className="block text-sm font-medium text-slate-700">
           Email
-          <input name="email" type="email" required autoComplete="email" className="input mt-1" />
+          <input
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            defaultValue={state.email}
+            key={state.email}
+            className="input mt-1"
+          />
         </label>
         <label className="block text-sm font-medium text-slate-700">
           Password

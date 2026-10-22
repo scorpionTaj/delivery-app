@@ -54,6 +54,7 @@ create or replace function place_order(
   p_product_id uuid, p_zone_id uuid, p_quantity int, p_lat float8, p_lng float8
 ) returns uuid
 language plpgsql
+set search_path = public
 as $$
 declare
   new_id uuid;
