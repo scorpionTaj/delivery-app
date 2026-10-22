@@ -1,3 +1,4 @@
+import { withColors } from "@/lib/geo";
 import { createClient } from "@/lib/supabase/server";
 import ZonesClient from "./ZonesClient";
 
@@ -9,5 +10,5 @@ export default async function ZonesPage() {
     .order("created_at");
   if (error) throw error;
 
-  return <ZonesClient zones={zones} />;
+  return <ZonesClient zones={withColors(zones)} />;
 }

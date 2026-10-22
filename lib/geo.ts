@@ -1,4 +1,4 @@
-export type Zone = { id: string; name: string; lat: number; lng: number; radius_m: number };
+export type Zone = { id: string; name: string; lat: number; lng: number; radius_m: number; color?: string };
 
 const EARTH_RADIUS_M = 6_371_000;
 
@@ -42,9 +42,10 @@ export function formatDistance(m: number): string {
 
 const PALETTE = ["#4f46e5", "#0891b2", "#16a34a", "#d97706", "#dc2626", "#9333ea", "#db2777", "#0d9488"];
 
-/** Stable color per zone id, so the map and dashboard always match. */
-export function zoneColor(id: string): string {
-  let h = 0;
-  for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return PALETTE[h % PALETTE.length];
+/**
+ * Gives each zone a color by position. Every page loads zones ordered by
+ * created_at, so the map, product list and dashboard always match.
+ */
+export function withColors<T>(zones: T[]): (T & { color: string })[] {
+  return zones.map((z, i) => ({ ...z, color: PALETTE[i % PALETTE.length] }));
 }

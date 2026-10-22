@@ -3,7 +3,7 @@
 import { latLng } from "leaflet";
 import { useEffect } from "react";
 import { Circle, CircleMarker, MapContainer, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet";
-import { type Zone, zoneColor } from "@/lib/geo";
+import { type Zone } from "@/lib/geo";
 
 export type MapPoint = { lat: number; lng: number; color: string; label?: string };
 
@@ -50,7 +50,7 @@ export default function ZoneMap({ zones, picked, onPick, points = [] }: Props) {
           key={z.id}
           center={[z.lat, z.lng]}
           radius={z.radius_m}
-          pathOptions={{ color: zoneColor(z.id), fillOpacity: 0.15 }}
+          pathOptions={{ color: z.color, fillOpacity: 0.15 }}
         >
           <Tooltip>{z.name}</Tooltip>
         </Circle>
