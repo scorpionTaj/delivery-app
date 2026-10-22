@@ -8,6 +8,7 @@ A mobile-first app to define delivery zones on a map, assign products to zones, 
 | **Source code** | https://github.com/scorpionTaj/delivery-app |
 | **Test account** | `test@demo.com` / `Test1234!` (or sign up with any email: no confirmation needed) |
 | **Project started** | 22 October 2026, 16:08 |
+| **Project finished** | 22 October 2026, 17:04 |
 | **CI** | GitHub Actions: lint, typecheck, unit tests, build |
 
 The live database already contains example data: 15 zones in Casablanca, 18 products and about 160 orders.
